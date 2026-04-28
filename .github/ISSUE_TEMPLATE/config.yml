@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Databricks SRA Terraform issues
+    url: https://github.com/databricks/terraform-databricks-sra/issues
+    about: For issues with the underlying SRA Terraform modules (not the WebUI), file there instead.
+  - name: Databricks SRA documentation
+    url: https://databricks.github.io/terraform-databricks-sra/
+    about: Read the official SRA documentation for guidance on configuration values.

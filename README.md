@@ -2,21 +2,34 @@
 
 A static React + TypeScript web wizard that generates `terraform.tfvars` files for the [Databricks Security Reference Architecture (SRA)](https://github.com/databricks/terraform-databricks-sra).
 
-Deploys via GitHub Pages — no backend required. Everything runs in your browser.
+🌐 **[Try it live →](https://davidwells-db.github.io/Databricks-SRA-WebUI/)**
+
+Deploys via GitHub Pages — no backend required. Everything runs in your browser. Nothing is sent to any server.
+
+> **Disclaimer**: This is an unofficial, community-built tool. It is **not** a Databricks product and is not officially supported by Databricks. It generates configuration files for the official [SRA Terraform templates](https://github.com/databricks/terraform-databricks-sra) but does not deploy any infrastructure. Always review the generated configuration before running `terraform apply`.
+
+## What it does
+
+1. Walks you through a guided wizard for AWS, Azure, or GCP
+2. Configures network, security, encryption, and feature flags via interactive forms
+3. Generates a `terraform.tfvars` file matching the SRA's expected format
+4. Packages it into a downloadable ZIP with deployment instructions
 
 ## Supported deployment modes
 
-- **AWS**: Isolated (SRA creates VPC) / Custom (BYO VPC)
-- **Azure**: Full SRA / BYO Hub / BYO Spoke Network
-- **GCP**: New VPC / Existing VPC
+| Provider | Modes |
+|----------|-------|
+| **AWS** | Isolated (SRA creates VPC) · Custom (BYO VPC) |
+| **Azure** | Full SRA · BYO Hub · BYO Spoke Network |
+| **GCP** | New VPC · Existing VPC |
 
-## Development
+## Local development
 
 ```bash
 npm install
 npm run dev              # Dev server on http://localhost:5173
 npm run build            # Production build to dist/
-npm test                 # Run vitest
+npm test                 # Run vitest (184 unit tests)
 npm run test:watch       # Vitest watch mode
 ```
 
@@ -45,6 +58,23 @@ The app is driven by schema files in `src/schemas/{provider}/`. Each SRA Terrafo
 
 The generator only outputs variables where the user's value differs from the Terraform default. Required variables (no Terraform default) are always output. This keeps the generated file clean and minimizes drift when the SRA updates its defaults.
 
+## Privacy
+
+- **No analytics, no cookies, no tracking.**
+- All form values stay in your browser's localStorage.
+- Sensitive fields (account IDs, secrets) are excluded from localStorage by default.
+- The downloaded ZIP is generated client-side — nothing leaves your machine.
+
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md). Issues and pull requests welcome.
+
 ## Tech stack
 
 React 19 · TypeScript · Vite · Tailwind CSS v4 · React Router (hash mode) · JSZip · Vitest
+
+## License
+
+[Apache License 2.0](./LICENSE)
+
+The Databricks Security Reference Architecture (which this tool generates configs for) is published by Databricks under its own license at [databricks/terraform-databricks-sra](https://github.com/databricks/terraform-databricks-sra).
