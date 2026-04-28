@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Redirecting…</title>
+    <meta name="robots" content="noindex" />
+    <script>
+      // SPA fallback for GitHub Pages.
+      // The site uses hash routing, so any non-root pathname is invalid —
+      // redirect back to the app root and let HashRouter take over.
+      (function () {
+        var basePath = '/Databricks-SRA-WebUI/';
+        var current = location.pathname + location.search + location.hash;
+        // If we're already at the base, no redirect needed
+        if (current === basePath || current === basePath + '#/') return;
+        // Send the user to the app entry point
+        location.replace(basePath);
+      })();
+    </script>
+  </head>
+  <body>
+    <p>Redirecting to <a href="/Databricks-SRA-WebUI/">Databricks SRA WebUI</a>…</p>
+  </body>
+</html>

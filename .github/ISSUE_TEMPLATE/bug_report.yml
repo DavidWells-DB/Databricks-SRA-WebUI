@@ -1,0 +1,94 @@
+name: Bug report
+description: Report a bug in the Databricks SRA WebUI
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug! Please **do not include sensitive values** (account IDs, secrets, internal CIDR ranges) in this report. Sanitize anything you paste.
+
+  - type: dropdown
+    id: provider
+    attributes:
+      label: Cloud Provider
+      description: Which cloud provider were you configuring?
+      options:
+        - AWS
+        - Azure
+        - GCP
+        - Other / not provider-specific
+    validations:
+      required: true
+
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Deployment Mode
+      description: Which deployment mode (if applicable)?
+      options:
+        - AWS - Isolated
+        - AWS - Custom (BYO VPC)
+        - Azure - Full SRA
+        - Azure - BYO Hub
+        - Azure - BYO Spoke Network
+        - GCP - New VPC
+        - GCP - Existing VPC
+        - Not applicable
+
+  - type: dropdown
+    id: step
+    attributes:
+      label: Wizard Step
+      description: Where in the wizard did the issue occur?
+      options:
+        - Landing page
+        - Step 1 - Provider & Mode
+        - Step 2 - Account & Identity
+        - Step 3 - Network
+        - Step 4 - Security
+        - Step 5 - Advanced
+        - Step 6 - Review & Download
+        - Generated terraform.tfvars output
+        - Other
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the bug and what you expected to happen.
+      placeholder: I tried to ... but instead ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. Enter '...'
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: console
+    attributes:
+      label: Browser console errors
+      description: Open DevTools → Console and paste any errors here.
+      render: text
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser + OS
+      placeholder: e.g. Chrome 130 on macOS 15
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Screenshots, sanitized config snippets, etc.
