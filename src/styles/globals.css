@@ -209,6 +209,74 @@
   background-clip: text;
 }
 
+/* Hero gradient orbs */
+@keyframes orbFloat1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(40px, -30px) scale(1.1); }
+}
+@keyframes orbFloat2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-50px, 40px) scale(1.15); }
+}
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 0;
+}
+.orb-primary {
+  background: var(--color-primary);
+  animation: orbFloat1 12s ease-in-out infinite;
+}
+.orb-accent {
+  background: #4285F4;
+  animation: orbFloat2 14s ease-in-out infinite;
+}
+
+/* Subtle grid pattern overlay */
+.bg-grid {
+  background-image: linear-gradient(var(--color-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-border) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-position: -1px -1px;
+  mask-image: radial-gradient(ellipse 60% 80% at 50% 0%, black 40%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 60% 80% at 50% 0%, black 40%, transparent 80%);
+  opacity: 0.4;
+}
+
+/* Pulse for feature highlights */
+@keyframes softPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+.animate-soft-pulse {
+  animation: softPulse 3s ease-in-out infinite;
+}
+
+/* Tilted preview mockup */
+.preview-tilt {
+  transform: perspective(2000px) rotateX(8deg);
+  transform-origin: center top;
+  transition: transform 0.6s ease;
+}
+.preview-tilt:hover {
+  transform: perspective(2000px) rotateX(0deg);
+}
+
+/* Stagger fade-in for child elements */
+.stagger-fade > * {
+  opacity: 0;
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+.stagger-fade > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger-fade > *:nth-child(2) { animation-delay: 0.15s; }
+.stagger-fade > *:nth-child(3) { animation-delay: 0.25s; }
+.stagger-fade > *:nth-child(4) { animation-delay: 0.35s; }
+.stagger-fade > *:nth-child(5) { animation-delay: 0.45s; }
+.stagger-fade > *:nth-child(6) { animation-delay: 0.55s; }
+
 /* High contrast mode */
 @media (prefers-contrast: high) {
   :root {
