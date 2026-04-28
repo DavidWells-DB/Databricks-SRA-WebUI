@@ -1,0 +1,26 @@
+// GCP region data for Databricks workspace deployment
+
+export const GCP_REGIONS: { value: string; label: string }[] = [
+  { value: 'us-central1', label: 'US Central (Iowa) - us-central1' },
+  { value: 'us-east1', label: 'US East (South Carolina) - us-east1' },
+  { value: 'us-east4', label: 'US East (N. Virginia) - us-east4' },
+  { value: 'us-west1', label: 'US West (Oregon) - us-west1' },
+  { value: 'us-west2', label: 'US West (Los Angeles) - us-west2' },
+  { value: 'us-west4', label: 'US West (Las Vegas) - us-west4' },
+  { value: 'northamerica-northeast1', label: 'Canada (Montreal) - northamerica-northeast1' },
+  { value: 'northamerica-northeast2', label: 'Canada (Toronto) - northamerica-northeast2' },
+  { value: 'southamerica-east1', label: 'South America (Sao Paulo) - southamerica-east1' },
+  { value: 'europe-west1', label: 'Europe (Belgium) - europe-west1' },
+  { value: 'europe-west2', label: 'Europe (London) - europe-west2' },
+  { value: 'europe-west3', label: 'Europe (Frankfurt) - europe-west3' },
+  { value: 'europe-west4', label: 'Europe (Netherlands) - europe-west4' },
+  { value: 'europe-west6', label: 'Europe (Zurich) - europe-west6' },
+  { value: 'europe-central2', label: 'Europe (Warsaw) - europe-central2' },
+  { value: 'asia-east1', label: 'Asia (Taiwan) - asia-east1' },
+  { value: 'asia-east2', label: 'Asia (Hong Kong) - asia-east2' },
+  { value: 'asia-northeast1', label: 'Asia (Tokyo) - asia-northeast1' },
+  { value: 'asia-northeast3', label: 'Asia (Seoul) - asia-northeast3' },
+  { value: 'asia-south1', label: 'Asia (Mumbai) - asia-south1' },
+  { value: 'asia-southeast1', label: 'Asia (Singapore) - asia-southeast1' },
+  { value: 'australia-southeast1', label: 'Australia (Sydney) - australia-southeast1' },
+];

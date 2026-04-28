@@ -1,0 +1,558 @@
+import type { SchemaVariable, ProviderSchema } from '../types';
+import { AZURE_REGIONS } from './regions';
+import { azureDeploymentModes } from './modes';
+
+// ─── All user-facing Azure SRA variables ──────────────────────────────────────
+// Mapped exactly from terraform-databricks-sra/azure/tf/variables.tf
+
+export const azureVariables: SchemaVariable[] = [
+  // ── Account & Identity group ────────────────────────────────────────────────
+  {
+    name: 'databricks_account_id',
+    terraformType: 'string',
+    description: '(Required) The Databricks account ID target for account-level operations',
+    required: true,
+    sensitive: false,
+    nullable: false,
+    validation: [
+      {
+        type: 'uuid',
+        message: 'Must be a valid UUID (e.g. 00000000-0000-0000-0000-000000000000).',
+      },
+    ],
+    ui: {
+      label: 'Databricks Account ID',
+      group: 'account',
+      order: 1,
+      inputType: 'text',
+      placeholder: '00000000-0000-0000-0000-000000000000',
+      helpText: 'Your Databricks account ID (UUID format).',
+      width: 'half',
+    },
+  },
+  {
+    name: 'subscription_id',
+    terraformType: 'string',
+    description: '(Required) Azure Subscription ID to deploy into',
+    required: true,
+    sensitive: false,
+    nullable: false,
+    validation: [
+      {
+        type: 'uuid',
+        message: 'Must be a valid UUID (e.g. ffffffff-ffff-ffff-ffff-ffffffffffff).',
+      },
+    ],
+    ui: {
+      label: 'Azure Subscription ID',
+      group: 'account',
+      order: 2,
+      inputType: 'text',
+      placeholder: 'ffffffff-ffff-ffff-ffff-ffffffffffff',
+      helpText: 'The Azure subscription ID where resources will be deployed.',
+      width: 'half',
+    },
+  },
+  {
+    name: 'location',
+    terraformType: 'string',
+    description: '(Required) The Azure region for the hub and spoke deployment',
+    required: true,
+    sensitive: false,
+    nullable: false,
+    validation: [
+      {
+        type: 'enum',
+        value: AZURE_REGIONS.map((r) => r.value),
+        message: 'Must be a valid Azure region.',
+      },
+    ],
+    ui: {
+      label: 'Azure Region',
+      group: 'account',
+      order: 3,
+      inputType: 'select',
+      options: AZURE_REGIONS,
+      helpText: 'The Azure region where all resources will be deployed.',
+      width: 'half',
+    },
+  },
+  {
+    name: 'resource_suffix',
+    terraformType: 'string',
+    description: '(Required) Suffix to use for naming Azure resources (e.g. dbx-dev, sra, etc.)',
+    required: true,
+    sensitive: false,
+    nullable: false,
+    ui: {
+      label: 'Resource Suffix',
+      group: 'account',
+      order: 4,
+      inputType: 'text',
+      placeholder: 'spoke',
+      helpText: 'Suffix used for naming Azure resources (e.g. dbx-dev, sra, spoke).',
+      width: 'half',
+    },
+  },
+
+  // ── Network group ───────────────────────────────────────────────────────────
+  {
+    name: 'hub_resource_suffix',
+    terraformType: 'string',
+    description: '(Optional) Resource suffix for naming resources in hub - required if create_hub is true',
+    required: false,
+    sensitive: false,
+    default: '',
+    nullable: false,
+    ui: {
+      label: 'Hub Resource Suffix',
+      group: 'network',
+      order: 1,
+      inputType: 'text',
+      placeholder: 'srahub',
+      helpText: 'Suffix for naming hub resources. Required when creating hub infrastructure.',
+      requiredWhen: [{ field: 'create_hub', operator: 'eq', value: true }],
+      width: 'half',
+    },
+  },
+  {
+    name: 'hub_vnet_cidr',
+    terraformType: 'string',
+    description: '(Optional) The CIDR block for the hub Virtual Network - required if create_hub is true',
+    required: false,
+    sensitive: false,
+    default: '',
+    nullable: false,
+    validation: [
+      {
+        type: 'cidr',
+        message: 'Must be a valid CIDR block (e.g. 10.0.0.0/22).',
+      },
+    ],
+    ui: {
+      label: 'Hub VNet CIDR',
+      group: 'network',
+      order: 2,
+      inputType: 'cidr',
+      placeholder: '10.0.0.0/22',
+      helpText: 'CIDR block for the hub Virtual Network. Required when creating hub infrastructure.',
+      requiredWhen: [{ field: 'create_hub', operator: 'eq', value: true }],
+      width: 'half',
+    },
+  },
+  {
+    name: 'workspace_vnet',
+    terraformType: {
+      object: {
+        cidr: 'string',
+        new_bits: { type: 'number', optional: true },
+      },
+    },
+    description: '(Optional) Spoke network configuration - required when create_workspace_vnet is true.',
+    required: false,
+    sensitive: false,
+    default: null,
+    nullable: true,
+    ui: {
+      label: 'Workspace VNet Configuration',
+      group: 'network',
+      order: 3,
+      inputType: 'object-editor',
+      helpText: 'Spoke network configuration with CIDR and optional new_bits for subnet sizing.',
+      visibleWhen: [{ field: 'create_workspace_vnet', operator: 'eq', value: true }],
+      width: 'full',
+    },
+  },
+  {
+    name: 'existing_hub_vnet',
+    terraformType: {
+      object: {
+        route_table_id: 'string',
+        vnet_id: 'string',
+      },
+    },
+    description: '(Optional) Existing hub VNET details, required if create_hub is false',
+    required: false,
+    sensitive: false,
+    default: null,
+    nullable: true,
+    ui: {
+      label: 'Existing Hub VNet',
+      group: 'network',
+      order: 4,
+      inputType: 'object-editor',
+      helpText: 'Provide the route table ID and VNet ID of your existing hub infrastructure.',
+      visibleWhen: [{ field: 'create_hub', operator: 'eq', value: false }],
+      width: 'full',
+    },
+  },
+  {
+    name: 'existing_ncc_id',
+    terraformType: 'string',
+    description: '(Optional) ID of an existing NCC to use, required if create_hub is false',
+    required: false,
+    sensitive: false,
+    default: null,
+    nullable: true,
+    ui: {
+      label: 'Existing NCC ID',
+      group: 'network',
+      order: 5,
+      inputType: 'text',
+      placeholder: '/subscriptions/.../networkConnectivityConfigurations/...',
+      helpText: 'ID of an existing Network Connectivity Configuration. Required when not creating hub.',
+      visibleWhen: [{ field: 'create_hub', operator: 'eq', value: false }],
+      width: 'full',
+    },
+  },
+  {
+    name: 'existing_ncc_name',
+    terraformType: 'string',
+    description: '(Optional) Name of NCC to use',
+    required: false,
+    sensitive: false,
+    default: null,
+    nullable: true,
+    ui: {
+      label: 'Existing NCC Name',
+      group: 'network',
+      order: 6,
+      inputType: 'text',
+      helpText: 'Name of the existing Network Connectivity Configuration.',
+      visibleWhen: [{ field: 'create_hub', operator: 'eq', value: false }],
+      width: 'half',
+    },
+  },
+  {
+    name: 'existing_network_policy_id',
+    terraformType: 'string',
+    description: '(Optional) ID of the network policy to use, required if create_hub is false',
+    required: false,
+    sensitive: false,
+    default: null,
+    nullable: true,
+    ui: {
+      label: 'Existing Network Policy ID',
+      group: 'network',
+      order: 7,
+      inputType: 'text',
+      helpText: 'ID of the existing network policy. Required when not creating hub.',
+      visibleWhen: [{ field: 'create_hub', operator: 'eq', value: false }],
+      width: 'full',
+    },
+  },
+  {
+    name: 'databricks_metastore_id',
+    terraformType: 'string',
+    description: '(Optional) Metastore ID to use for all workspaces created, required if create_hub is false',
+    required: false,
+    sensitive: false,
+    default: null,
+    nullable: true,
+    validation: [
+      {
+        type: 'uuid',
+        message: 'Must be a valid UUID.',
+      },
+    ],
+    ui: {
+      label: 'Databricks Metastore ID',
+      group: 'network',
+      order: 8,
+      inputType: 'text',
+      placeholder: '00000000-0000-0000-0000-000000000000',
+      helpText: 'Metastore ID to use for all workspaces. Required when not creating hub.',
+      visibleWhen: [{ field: 'create_hub', operator: 'eq', value: false }],
+      width: 'half',
+    },
+  },
+  {
+    name: 'existing_workspace_vnet',
+    terraformType: {
+      object: {
+        network_configuration: {
+          type: {
+            object: {
+              virtual_network_id: 'string',
+              private_subnet_id: 'string',
+              public_subnet_id: 'string',
+              private_endpoint_subnet_id: 'string',
+              private_subnet_network_security_group_association_id: 'string',
+              public_subnet_network_security_group_association_id: 'string',
+            },
+          },
+        },
+        dns_zone_ids: {
+          type: {
+            object: {
+              backend: 'string',
+              dfs: 'string',
+              blob: 'string',
+            },
+          },
+        },
+      },
+    },
+    description: '(Optional) Existing network configuration - required when create_workspace_vnet is false',
+    required: false,
+    sensitive: false,
+    default: null,
+    nullable: true,
+    ui: {
+      label: 'Existing Workspace VNet Configuration',
+      group: 'network',
+      order: 9,
+      inputType: 'object-editor',
+      helpText:
+        'Provide your existing workspace network configuration including VNet, subnets, NSG associations, and DNS zone IDs.',
+      visibleWhen: [{ field: 'create_workspace_vnet', operator: 'eq', value: false }],
+      width: 'full',
+    },
+  },
+
+  // ── Security group ──────────────────────────────────────────────────────────
+  {
+    name: 'existing_cmk_ids',
+    terraformType: {
+      object: {
+        key_vault_id: 'string',
+        managed_disk_key_id: 'string',
+        managed_services_key_id: 'string',
+      },
+    },
+    description: '(Optional) Existing CMK IDs - required when create_hub is false and cmk_enabled is true',
+    required: false,
+    sensitive: false,
+    default: null,
+    nullable: true,
+    ui: {
+      label: 'Existing CMK IDs',
+      group: 'security',
+      order: 1,
+      inputType: 'object-editor',
+      helpText:
+        'Provide existing Customer Managed Key IDs for Key Vault, managed disk, and managed services encryption.',
+      visibleWhen: [{ field: 'create_hub', operator: 'eq', value: false }],
+      width: 'full',
+    },
+  },
+  {
+    name: 'cmk_enabled',
+    terraformType: 'bool',
+    description: '(Optional) Whether to enable customer-managed keys (CMK) for workspace encryption.',
+    required: false,
+    sensitive: false,
+    default: true,
+    nullable: false,
+    ui: {
+      label: 'Customer-Managed Keys Enabled',
+      group: 'security',
+      order: 2,
+      inputType: 'checkbox',
+      helpText:
+        'When enabled, managed disks and services will be encrypted with customer-managed keys.',
+      width: 'half',
+    },
+  },
+
+  // ── Advanced group ──────────────────────────────────────────────────────────
+  {
+    name: 'workspace_security_compliance',
+    terraformType: {
+      object: {
+        automatic_cluster_update_enabled: { type: 'bool', optional: true },
+        compliance_security_profile_enabled: { type: 'bool', optional: true },
+        compliance_security_profile_standards: {
+          type: 'list(string)',
+          optional: true,
+          default: [],
+        },
+        enhanced_security_monitoring_enabled: { type: 'bool', optional: true },
+      },
+    },
+    description: '(Optional) Enhanced security compliance configuration for the workspace',
+    required: false,
+    sensitive: false,
+    default: null,
+    nullable: true,
+    ui: {
+      label: 'Workspace Security & Compliance',
+      group: 'advanced',
+      order: 1,
+      inputType: 'object-editor',
+      helpText:
+        'Enhanced security compliance settings: Compliance Security Profile (e.g. HIPAA), Enhanced Security Monitoring, and Automatic Cluster Updates.',
+      width: 'full',
+    },
+  },
+  {
+    name: 'tags',
+    terraformType: 'map(string)',
+    description: '(Optional) Map of tags to attach to resources',
+    required: false,
+    sensitive: false,
+    default: {},
+    nullable: false,
+    ui: {
+      label: 'Tags',
+      group: 'advanced',
+      order: 2,
+      inputType: 'map-editor',
+      helpText: 'Key-value tags to apply to all created resources.',
+      width: 'full',
+    },
+  },
+  {
+    name: 'allowed_fqdns',
+    terraformType: 'list(string)',
+    description: '(Optional) List of FQDNs to allow from spoke workspace.',
+    required: false,
+    sensitive: false,
+    default: [],
+    nullable: false,
+    ui: {
+      label: 'Allowed FQDNs',
+      group: 'advanced',
+      order: 3,
+      inputType: 'list-editor',
+      helpText:
+        'FQDNs that spoke workspaces can access via Azure Firewall. Default is empty (zero-trust, no internet). Supports wildcards (e.g. *.pypi.org). If SAT is enabled on classic compute, include required URLs: management.azure.com, login.microsoftonline.com, python.org, *.python.org, pypi.org, *.pypi.org, pythonhosted.org, *.pythonhosted.org',
+      placeholder: 'e.g. management.azure.com',
+      width: 'full',
+    },
+  },
+  {
+    name: 'hub_allowed_urls',
+    terraformType: 'set(string)',
+    description: '(Optional) List of URLs to allow serverless compute in the hub (webauth) workspace access to.',
+    required: false,
+    sensitive: false,
+    default: [],
+    nullable: false,
+    ui: {
+      label: 'Hub Allowed URLs',
+      group: 'advanced',
+      order: 4,
+      inputType: 'list-editor',
+      helpText:
+        'URLs that hub workspace serverless compute can access. Default is empty (no internet). Does NOT support wildcards. If SAT is enabled on serverless, include: management.azure.com, login.microsoftonline.com, python.org, pypi.org, pythonhosted.org',
+      placeholder: 'e.g. management.azure.com',
+      width: 'full',
+    },
+  },
+  {
+    name: 'sat_configuration',
+    terraformType: {
+      object: {
+        enabled: { type: 'bool', optional: true, default: false },
+        schema_name: { type: 'string', optional: true, default: 'sat' },
+        catalog_name: { type: 'string', optional: true, default: 'sat' },
+        proxies: { type: 'map(any)', optional: true, default: {} },
+        run_on_serverless: { type: 'bool', optional: true, default: false },
+      },
+    },
+    description: '(Optional) Configuration for the SAT customization',
+    required: false,
+    sensitive: false,
+    default: {},
+    nullable: false,
+    ui: {
+      label: 'SAT Configuration',
+      group: 'advanced',
+      order: 5,
+      inputType: 'object-editor',
+      helpText:
+        'SAT monitors workspace security posture. Deployed in hub (WEBAUTH) workspace. Classic compute mode can inspect all workspaces in subscription. Serverless mode can only inspect the workspace it is deployed in.',
+      width: 'full',
+    },
+  },
+  {
+    name: 'sat_service_principal',
+    terraformType: {
+      object: {
+        client_id: { type: 'string', optional: true, default: '' },
+        client_secret: { type: 'string', optional: true, default: '' },
+        name: { type: 'string', optional: true, default: 'spSAT' },
+      },
+    },
+    description:
+      '(Optional) Service principal configuration for running SAT. If not provided, a service principal will be created.',
+    required: false,
+    sensitive: true,
+    default: {},
+    nullable: false,
+    ui: {
+      label: 'SAT Service Principal',
+      group: 'advanced',
+      order: 6,
+      inputType: 'object-editor',
+      helpText:
+        'Service principal for SAT execution. Both client_id and client_secret must be provided together, or left empty to auto-create.',
+      width: 'full',
+    },
+  },
+  {
+    name: 'create_workspace_resource_group',
+    terraformType: 'bool',
+    description: '(Optional) Should a resource group be created for this workspace?',
+    required: false,
+    sensitive: false,
+    default: true,
+    nullable: false,
+    ui: {
+      label: 'Create Workspace Resource Group',
+      group: 'advanced',
+      order: 7,
+      inputType: 'checkbox',
+      helpText:
+        'Whether to create a new resource group for the workspace. If false, provide an existing resource group name.',
+      width: 'half',
+    },
+  },
+  {
+    name: 'existing_resource_group_name',
+    terraformType: 'string',
+    description: '(Optional) Existing resource group name, if using one',
+    required: false,
+    sensitive: false,
+    default: null,
+    nullable: true,
+    ui: {
+      label: 'Existing Resource Group Name',
+      group: 'advanced',
+      order: 8,
+      inputType: 'text',
+      placeholder: 'rg-example',
+      helpText: 'Name of an existing resource group to use instead of creating a new one.',
+      visibleWhen: [{ field: 'create_workspace_resource_group', operator: 'eq', value: false }],
+      width: 'half',
+    },
+  },
+  {
+    name: 'workspace_name_overrides',
+    terraformType: 'map(string)',
+    description: '(Optional) Override names for workspace resources. Keys should match naming module outputs.',
+    required: false,
+    sensitive: false,
+    default: {},
+    nullable: false,
+    ui: {
+      label: 'Workspace Name Overrides',
+      group: 'advanced',
+      order: 9,
+      inputType: 'map-editor',
+      helpText: 'Override default names for workspace resources. Keys should match naming module outputs.',
+      width: 'full',
+    },
+  },
+];
+
+// ─── Full provider schema ───────────────────────────────────────────────────
+
+export const azureSchema: ProviderSchema = {
+  provider: 'azure',
+  displayName: 'Microsoft Azure',
+  description: 'Deploy Databricks on Azure with hub-spoke VNet, Private Link, CMK, and security hardening',
+  deploymentModes: azureDeploymentModes,
+  variables: azureVariables,
+};
