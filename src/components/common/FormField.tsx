@@ -204,6 +204,7 @@ export default function FormField({
             value={typeof value === 'object' && value !== null ? (value as Record<string, string>) : {}}
             onChange={handleChange}
             disabled={disabled}
+            keyOptions={ui.mapKeyOptions}
           />
         );
 

@@ -541,7 +541,29 @@ export const azureVariables: SchemaVariable[] = [
       group: 'advanced',
       order: 9,
       inputType: 'map-editor',
-      helpText: 'Override default names for workspace resources. Keys should match naming module outputs.',
+      helpText: 'Override the default name for specific Azure resources. Pick a resource type from the dropdown — the SRA accepts only the four keys listed below. Each value must satisfy Azure naming constraints.',
+      mapKeyOptions: [
+        {
+          value: 'databricks_workspace',
+          label: 'Databricks Workspace',
+          hint: '3–64 chars, alphanumeric and hyphens.',
+        },
+        {
+          value: 'private_endpoint',
+          label: 'Private Endpoint (base)',
+          hint: '1–80 chars, alphanumeric, hyphens, underscores. Suffixes like -backend / -webauth are appended automatically.',
+        },
+        {
+          value: 'storage_account',
+          label: 'Storage Account',
+          hint: '3–24 chars, lowercase letters and numbers only — must be globally unique.',
+        },
+        {
+          value: 'resource_group',
+          label: 'Resource Group',
+          hint: '1–90 chars, alphanumeric, hyphens, underscores, periods.',
+        },
+      ],
       width: 'full',
     },
   },

@@ -137,6 +137,40 @@ export default function Step2_Account() {
           {provider === 'azure' && rf('resource_suffix')}
           {provider === 'gcp' && rf('workspace_name')}
         </div>
+
+        {provider === 'aws' && (() => {
+          const prefix =
+            (getFieldValue('resource_prefix') as string)?.trim() || 'my-prefix';
+          const examples = [
+            { resource: 'VPC', name: `${prefix}-classic-compute-plane-vpc` },
+            { resource: 'Workspace security group', name: `${prefix}-workspace-sg` },
+            { resource: 'PrivateLink security group', name: `${prefix}-privatelink-sg` },
+            { resource: 'Cross-account IAM role', name: `${prefix}-cross-account` },
+            { resource: 'Root S3 bucket', name: `${prefix}-workspace-root-storage` },
+            { resource: 'Workspace storage KMS alias', name: `alias/${prefix}-workspace-storage-key` },
+            { resource: 'Managed services KMS alias', name: `alias/${prefix}-managed-services-key` },
+            { resource: 'Unity Catalog', name: `${prefix}-catalog-<workspace_id>` },
+          ];
+          return (
+            <div className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface-secondary)] p-3">
+              <p className="text-xs font-medium text-[var(--color-text)] mb-2">
+                How <code>resource_prefix</code> is applied
+              </p>
+              <p className="text-xs text-[var(--color-text-secondary)] mb-3">
+                The SRA Terraform uses your prefix as a stem for every AWS resource it creates.
+                Individual resource names cannot be overridden on AWS — pick the prefix carefully.
+              </p>
+              <ul className="text-xs text-[var(--color-text-secondary)] space-y-1 font-mono">
+                {examples.map((e) => (
+                  <li key={e.resource}>
+                    <span className="text-[var(--color-text-tertiary)]">{e.resource}:</span>{' '}
+                    <span className="text-[var(--color-text)]">{e.name}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          );
+        })()}
       </div>
 
       {/* ── Service Account & Access (GCP only) ─────────────────────────────── */}

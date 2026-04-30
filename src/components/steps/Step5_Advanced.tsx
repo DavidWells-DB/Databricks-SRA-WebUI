@@ -57,11 +57,47 @@ function hasAny(vars: SchemaVariable[], names: string[]): boolean {
   return names.some((n) => vars.find((v) => v.name === n));
 }
 
+/**
+ * For a list of variable names, count how many have a current value that differs
+ * from the schema default (with mode-level defaultOverrides applied), and return
+ * a `{customized, total}` summary. Variables not present in the schema for the
+ * current provider are skipped.
+ */
+function customizedCount(
+  vars: SchemaVariable[],
+  names: string[],
+  getFieldValue: (name: string) => unknown,
+  defaultOverrides: Record<string, unknown>,
+): { customized: number; total: number } {
+  const present = names
+    .map((n) => vars.find((v) => v.name === n))
+    .filter((v): v is SchemaVariable => Boolean(v));
+  let customized = 0;
+  for (const v of present) {
+    const effectiveDefault =
+      defaultOverrides[v.name] !== undefined ? defaultOverrides[v.name] : v.default;
+    const current = getFieldValue(v.name);
+    // Treat undefined current as "not customized" (still at default)
+    if (current === undefined) continue;
+    if (JSON.stringify(current) !== JSON.stringify(effectiveDefault)) {
+      customized += 1;
+    }
+  }
+  return { customized, total: present.length };
+}
+
+function customizedBadge(c: { customized: number; total: number }): string | undefined {
+  if (c.total === 0) return undefined;
+  return c.customized === 0
+    ? `${c.total} optional`
+    : `${c.customized} of ${c.total} customized`;
+}
+
 // ─── Component ─────────────────────────────────────────────────────────────
 
 export default function Step5_Advanced() {
   const { state, getFieldValue, setField, completeStep } = useConfig();
-  const { provider } = state;
+  const { provider, deploymentMode } = state;
 
   const schema =
     provider === 'aws'
@@ -75,6 +111,11 @@ export default function Step5_Advanced() {
   const vars = schema?.variables ?? [];
   const rf = (name: string) =>
     renderField(findVar(vars, name), getFieldValue, setField, state.values);
+
+  const activeMode = schema?.deploymentModes.find((m) => m.id === deploymentMode);
+  const defaultOverrides = activeMode?.defaultOverrides ?? {};
+  const badgeFor = (names: string[]) =>
+    customizedBadge(customizedCount(vars, names, getFieldValue, defaultOverrides));
 
   // ── Feature Flags ─────────────────────────────────────────────────────────
   const featureFlagNames = [
@@ -127,7 +168,7 @@ export default function Step5_Advanced() {
 
       {/* ── Feature Flags ──────────────────────────────────────────────────── */}
       {hasAny(vars, featureFlagNames) && (
-        <CollapsibleSection title="Feature Flags" defaultOpen>
+        <CollapsibleSection title="Feature Flags" defaultOpen badge={badgeFor(featureFlagNames)}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {featureFlagNames.map((name) => rf(name))}
           </div>
@@ -136,7 +177,7 @@ export default function Step5_Advanced() {
 
       {/* ── Compliance ─────────────────────────────────────────────────────── */}
       {hasAny(vars, complianceNames) && (
-        <CollapsibleSection title="Compliance" defaultOpen={false}>
+        <CollapsibleSection title="Compliance" defaultOpen={false} badge={badgeFor(complianceNames)}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {complianceNames.map((name) => rf(name))}
           </div>
@@ -145,7 +186,7 @@ export default function Step5_Advanced() {
 
       {/* ── SAT Configuration ──────────────────────────────────────────────── */}
       {hasAny(vars, satNames) && (
-        <CollapsibleSection title="SAT Configuration" defaultOpen={false}>
+        <CollapsibleSection title="SAT Configuration" defaultOpen={false} badge={badgeFor(satNames)}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {satNames.map((name) => rf(name))}
           </div>
@@ -154,7 +195,7 @@ export default function Step5_Advanced() {
 
       {/* ── Network Egress (Azure only) ────────────────────────────────────── */}
       {provider === 'azure' && hasAny(vars, networkEgressNames) && (
-        <CollapsibleSection title="Network Egress" defaultOpen={false}>
+        <CollapsibleSection title="Network Egress" defaultOpen={false} badge={badgeFor(networkEgressNames)}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {networkEgressNames.map((name) => rf(name))}
           </div>
@@ -163,7 +204,7 @@ export default function Step5_Advanced() {
 
       {/* ── Tags & Naming ──────────────────────────────────────────────────── */}
       {hasAny(vars, tagsNamingNames) && (
-        <CollapsibleSection title="Tags &amp; Naming" defaultOpen={false}>
+        <CollapsibleSection title="Tags &amp; Naming" defaultOpen={false} badge={badgeFor(tagsNamingNames)}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {tagsNamingNames.map((name) => rf(name))}
           </div>
