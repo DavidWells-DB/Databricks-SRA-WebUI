@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useTheme } from '../../hooks/useTheme';
 
 export default function Header() {
@@ -6,8 +7,12 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-surface)]/80 backdrop-blur-lg">
       <div className="flex items-center justify-between px-6 py-3">
-        {/* Branding */}
-        <div className="flex items-center gap-2.5">
+        {/* Branding — links to landing page */}
+        <Link
+          to="/"
+          aria-label="Databricks SRA — home"
+          className="flex items-center gap-2.5 rounded-md transition-opacity hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
+        >
           {/* Shield icon */}
           <svg className="w-6 h-6 text-[var(--color-primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
@@ -16,7 +21,7 @@ export default function Header() {
             <span className="text-[var(--color-primary)]">Databricks</span>
             <span className="text-[var(--color-text)]"> SRA</span>
           </span>
-        </div>
+        </Link>
 
         {/* Right side: GitHub + theme toggle */}
         <div className="flex items-center gap-3">
