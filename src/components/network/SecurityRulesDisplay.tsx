@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import type { Provider } from '../../schemas/types';
 
 interface SecurityRule {
@@ -96,6 +97,8 @@ function RuleRow({ rule }: { rule: SecurityRule }) {
 interface SecurityRulesDisplayProps {
   provider: Provider;
   title?: string;
+  /** Optional editable content rendered after the rule sections (e.g., editable egress ports for AWS) */
+  children?: ReactNode;
 }
 
 function RuleSection({ title, rules, subtitle }: { title: string; rules: SecurityRule[]; subtitle?: string }) {
@@ -112,15 +115,16 @@ function RuleSection({ title, rules, subtitle }: { title: string; rules: Securit
   );
 }
 
-export default function SecurityRulesDisplay({ provider, title }: SecurityRulesDisplayProps) {
+export default function SecurityRulesDisplay({ provider, title, children }: SecurityRulesDisplayProps) {
   if (provider === 'aws') {
     return (
       <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-5 space-y-5">
         <h3 className="text-base font-semibold text-[var(--color-text)]">
-          {title ?? 'Network Security (managed by SRA)'}
+          {title ?? 'Network Security'}
         </h3>
         <p className="text-xs text-[var(--color-text-tertiary)]">
-          These security groups, endpoints, and policies are created automatically. The configurable TCP egress ports are listed separately below.
+          The SRA creates these security groups, endpoints, and policies. Most rules are managed automatically;
+          the TCP egress port list below is user-configurable via the <code>sg_egress_ports</code> variable.
         </p>
 
         <RuleSection
@@ -140,6 +144,12 @@ export default function SecurityRulesDisplay({ provider, title }: SecurityRulesD
           subtitle="Gateway and interface endpoints with scoped-down IAM policies"
           rules={AWS_VPC_ENDPOINTS}
         />
+
+        {children && (
+          <div className="pt-4 border-t border-[var(--color-border)]">
+            {children}
+          </div>
+        )}
 
         <Legend />
       </div>
@@ -169,6 +179,11 @@ export default function SecurityRulesDisplay({ provider, title }: SecurityRulesD
           <RuleRow key={i} rule={rule} />
         ))}
       </div>
+      {children && (
+        <div className="pt-3 border-t border-[var(--color-border)]">
+          {children}
+        </div>
+      )}
       <Legend />
     </div>
   );

@@ -97,7 +97,7 @@ export default function AWSIsolatedNetwork() {
 
   return (
     <div className="space-y-6">
-      {/* VPC CIDR */}
+      {/* 1. VPC CIDR */}
       <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-5 space-y-1">
         <label className="block text-sm font-semibold text-[var(--color-text)]">
           {vpcVar?.ui.label ?? 'VPC CIDR Range'}
@@ -115,10 +115,7 @@ export default function AWSIsolatedNetwork() {
         />
       </div>
 
-      {/* Security Group Rules */}
-      <SecurityRulesDisplay provider="aws" />
-
-      {/* Workspace Subnets (private) */}
+      {/* 2. Workspace Subnets */}
       <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-5 space-y-5">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-[#3b82f6]" />
@@ -136,7 +133,6 @@ export default function AWSIsolatedNetwork() {
           label="Subnet Size"
         />
 
-        {/* Calculated Subnet Allocation */}
         <div>
           <h4 className="text-sm font-medium text-[var(--color-text-secondary)] mb-3 flex items-center gap-1.5">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -158,7 +154,7 @@ export default function AWSIsolatedNetwork() {
         </div>
       </div>
 
-      {/* PrivateLink Endpoint Subnets */}
+      {/* 3. PrivateLink Endpoint Subnets */}
       <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-5 space-y-5">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-[#8b5cf6]" />
@@ -197,7 +193,7 @@ export default function AWSIsolatedNetwork() {
         </div>
       </div>
 
-      {/* Overlap warning */}
+      {/* 4. Overlap warning */}
       {!subnetsFit && (
         <div className="rounded-lg border border-[var(--color-error)]/30 bg-[var(--color-error)]/5 p-4 flex items-start gap-3">
           <svg className="w-5 h-5 text-[var(--color-error)] mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -213,7 +209,7 @@ export default function AWSIsolatedNetwork() {
         </div>
       )}
 
-      {/* Subnet Visualizer */}
+      {/* 5. Subnet Visualizer */}
       {subnetsFit && isValidCidr(vpcCidr) && visualizerSubnets.length > 0 && (
         <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
           <h4 className="mb-3 text-sm font-medium text-[var(--color-text)]">
@@ -223,22 +219,31 @@ export default function AWSIsolatedNetwork() {
         </div>
       )}
 
-      {/* Configurable TCP Egress Ports */}
-      <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-5 space-y-4">
-        <h3 className="text-base font-semibold text-[var(--color-text)]">
-          TCP Egress Ports to VPC CIDR
-        </h3>
-        <p className="text-xs text-[var(--color-text-tertiary)]">
-          TCP ports for Databricks control plane services: REST API (443), Secure Cluster Connectivity (2443/6666),
-          Lakebase PostgreSQL (5432), internal calls (8443), UC logging &amp; lineage (8444), future use (8445–8451).
-          Port 6666 is automatically excluded in GovCloud deployments.
-        </p>
-        <ListEditor
-          value={egressPorts}
-          onChange={(val) => setField('sg_egress_ports', val)}
-          placeholder="Enter TCP port number"
-        />
-      </div>
+      {/* 6. Network Security — display rules + integrated editable egress ports */}
+      <SecurityRulesDisplay provider="aws">
+        <div className="space-y-3">
+          <div>
+            <h4 className="text-sm font-semibold text-[var(--color-text)] flex items-center gap-2">
+              <svg className="w-4 h-4 text-[var(--color-primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+              </svg>
+              Editable: TCP Egress Ports to VPC CIDR
+            </h4>
+            <p className="text-xs text-[var(--color-text-secondary)] mt-1">
+              Controls the <code>sg_egress_ports</code> Terraform variable — the third rule shown above.
+              Add or remove ports as needed. Defaults match the SRA template:
+              REST API (443), Secure Cluster Connectivity (2443/6666), Lakebase PostgreSQL (5432),
+              internal calls (8443), UC logging &amp; lineage (8444), future use (8445–8451).
+              Port 6666 is automatically excluded in GovCloud.
+            </p>
+          </div>
+          <ListEditor
+            value={egressPorts}
+            onChange={(val) => setField('sg_egress_ports', val)}
+            placeholder="Enter TCP port number"
+          />
+        </div>
+      </SecurityRulesDisplay>
     </div>
   );
 }
