@@ -139,6 +139,23 @@ export default function Step2_Account() {
         </div>
       </div>
 
+      {/* ── Service Account & Access (GCP only) ─────────────────────────────── */}
+      {provider === 'gcp' && (
+        <div className={sectionCard}>
+          <h3 className={sectionTitle}>Service Account &amp; Access</h3>
+          <p className="text-xs text-[var(--color-text-secondary)] -mt-2">
+            Controls workspace admin provisioning, the Databricks account console
+            endpoint, and the scope of permissions granted to the Databricks Google
+            service account.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {rf('account_console_url')}
+            {rf('create_admin_user')}
+            {rf('can_create_workspaces')}
+          </div>
+        </div>
+      )}
+
       {/* ── GovCloud (AWS only, conditional) ────────────────────────────────── */}
       {provider === 'aws' && (
         <ConditionalSection
