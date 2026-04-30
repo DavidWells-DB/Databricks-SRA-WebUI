@@ -71,6 +71,8 @@ export interface SchemaVariable {
       | 'textarea'
       | 'list-editor';
     options?: { value: string; label: string }[];
+    /** Constrains keys for `map-editor` inputs to a fixed set with optional per-key hint */
+    mapKeyOptions?: { value: string; label: string; hint?: string }[];
     visibleWhen?: Condition[];
     requiredWhen?: Condition[];
     helpText?: string;

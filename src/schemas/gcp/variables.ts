@@ -556,7 +556,7 @@ export const gcpVariables: SchemaVariable[] = [
     },
   },
 
-  // ── Advanced group ──────────────────────────────────────────────────────────
+  // ── Service Account & Access (account group) ────────────────────────────────
   {
     name: 'account_console_url',
     terraformType: 'string',
@@ -567,8 +567,8 @@ export const gcpVariables: SchemaVariable[] = [
     nullable: false,
     ui: {
       label: 'Account Console URL',
-      group: 'advanced',
-      order: 0,
+      group: 'account',
+      order: 10,
       inputType: 'text',
       placeholder: 'https://accounts.gcp.databricks.com',
       helpText: 'Databricks account console URL. Only change this for non-standard environments.',
@@ -585,10 +585,27 @@ export const gcpVariables: SchemaVariable[] = [
     nullable: false,
     ui: {
       label: 'Create Admin User',
-      group: 'advanced',
-      order: 1,
+      group: 'account',
+      order: 11,
       inputType: 'checkbox',
       helpText: 'Create and assign the admin user specified in admin_user_email to the workspace.',
+      width: 'half',
+    },
+  },
+  {
+    name: 'can_create_workspaces',
+    terraformType: 'bool',
+    description: '(Optional) Whether the Databricks Google service account can create additional workspaces',
+    required: false,
+    sensitive: false,
+    default: true,
+    nullable: false,
+    ui: {
+      label: 'Service Account Can Create Workspaces',
+      group: 'account',
+      order: 12,
+      inputType: 'checkbox',
+      helpText: 'When enabled, grants the Databricks Google service account permission to create additional workspaces in this project. Disable for stricter least-privilege if you only need this single workspace.',
       width: 'half',
     },
   },
