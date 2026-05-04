@@ -1,4 +1,4 @@
-import { useConfig } from '../../../context/ConfigContext';
+import { useConfig } from '../../../context/useConfig';
 import { awsSchema } from '../../../schemas/aws/variables';
 import FormField from '../../common/FormField';
 

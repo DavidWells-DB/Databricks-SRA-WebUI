@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useConfig } from '../../context/ConfigContext';
+import { useConfig } from '../../context/useConfig';
 import { awsSchema } from '../../schemas/aws/variables';
 import { azureSchema } from '../../schemas/azure/variables';
 import { gcpSchema } from '../../schemas/gcp/variables';

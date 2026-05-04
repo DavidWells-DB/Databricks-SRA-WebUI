@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useConfig } from '../../../context/ConfigContext';
+import { useConfig } from '../../../context/useConfig';
 import { awsSchema } from '../../../schemas/aws/variables';
 import { parseCidr, calculateAwsSubnetsWithMask } from '../../../lib/cidr/calculator';
 import { isValidCidr } from '../../../lib/cidr/validator';
@@ -57,7 +57,11 @@ export default function AWSIsolatedNetwork() {
     setField('privatelink_subnets_cidr', result.privatelinkSubnets);
   };
 
-  // When VPC CIDR changes: reset masks to defaults and recalculate
+  // When VPC CIDR changes: reset masks to defaults and recalculate.
+  // Refactoring this to a "reset key" pattern would force the recalculate()
+  // side-effect (which dispatches into ConfigContext) into another effect,
+  // multiplying the same lint friction without changing behavior.
+  /* eslint-disable react-hooks/set-state-in-effect, react-hooks/exhaustive-deps */
   useEffect(() => {
     if (isValidCidr(vpcCidr)) {
       const newVpcPrefix = parseCidr(vpcCidr).prefixLength;
@@ -67,7 +71,8 @@ export default function AWSIsolatedNetwork() {
       setPlPrefix(newPlPrefix);
       recalculate(vpcCidr, newPrivatePrefix, newPlPrefix);
     }
-  }, [vpcCidr]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [vpcCidr]);
+  /* eslint-enable react-hooks/set-state-in-effect, react-hooks/exhaustive-deps */
 
   const handlePrivatePrefixChange = (newPrefix: number) => {
     setPrivatePrefix(newPrefix);

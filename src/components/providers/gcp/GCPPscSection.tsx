@@ -1,4 +1,4 @@
-import { useConfig } from '../../../context/ConfigContext';
+import { useConfig } from '../../../context/useConfig';
 import { gcpSchema } from '../../../schemas/gcp/variables';
 import FormField from '../../common/FormField';
 import ConditionalSection from '../../common/ConditionalSection';

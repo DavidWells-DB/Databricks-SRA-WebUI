@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { useConfig } from '../../../context/ConfigContext';
+import { useConfig } from '../../../context/useConfig';
 import CidrInput from '../../common/CidrInput';
 import SecurityRulesDisplay from '../../network/SecurityRulesDisplay';
 import NetworkDiagram from '../../network/NetworkDiagram';

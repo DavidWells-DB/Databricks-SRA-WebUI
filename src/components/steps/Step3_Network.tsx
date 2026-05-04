@@ -1,4 +1,4 @@
-import { useConfig } from '../../context/ConfigContext';
+import { useConfig } from '../../context/useConfig';
 import WizardNavigation from './WizardNavigation';
 import AWSIsolatedNetwork from '../providers/aws/AWSIsolatedNetwork';
 import AWSCustomNetwork from '../providers/aws/AWSCustomNetwork';

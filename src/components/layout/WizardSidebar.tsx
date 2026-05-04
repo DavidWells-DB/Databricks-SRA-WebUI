@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { WIZARD_STEPS } from '../../schemas/types';
-import { useConfig } from '../../context/ConfigContext';
+import { useConfig } from '../../context/useConfig';
 
 interface WizardSidebarProps {
   currentStep: string;

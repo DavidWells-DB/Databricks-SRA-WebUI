@@ -1,4 +1,4 @@
-import { useConfig } from '../../../context/ConfigContext';
+import { useConfig } from '../../../context/useConfig';
 import ObjectInput from '../../common/ObjectInput';
 
 export default function AzureBYOSpokeNetwork() {

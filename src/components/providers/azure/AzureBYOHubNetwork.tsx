@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useConfig } from '../../../context/ConfigContext';
+import { useConfig } from '../../../context/useConfig';
 import CidrInput from '../../common/CidrInput';
 import ObjectInput from '../../common/ObjectInput';
 

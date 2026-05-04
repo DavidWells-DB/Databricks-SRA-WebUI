@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useConfig } from '../../../context/ConfigContext';
+import { useConfig } from '../../../context/useConfig';
 import { gcpSchema } from '../../../schemas/gcp/variables';
 import FormField from '../../common/FormField';
 import GCPPscSection from './GCPPscSection';
