@@ -9,9 +9,9 @@ import MapEditor from './MapEditor';
 
 interface FormFieldProps {
   variable: SchemaVariable;
-  value: any;
+  value: unknown;
   error?: string;
-  onChange: (name: string, value: any) => void;
+  onChange: (name: string, value: unknown) => void;
   disabled?: boolean;
 }
 
@@ -25,7 +25,8 @@ export default function FormField({
   const { name, ui, required, sensitive } = variable;
   const inputType = ui.inputType ?? 'text';
 
-  const handleChange = (val: any) => onChange(name, val);
+  const handleChange = (val: unknown) => onChange(name, val);
+  const stringValue = value === null || value === undefined ? '' : String(value);
 
   const widthClass = ui.width === 'half' ? 'w-full md:w-1/2' : 'w-full';
 
@@ -45,7 +46,7 @@ export default function FormField({
       case 'select':
         return (
           <select
-            value={value ?? ''}
+            value={stringValue}
             onChange={(e) => handleChange(e.target.value)}
             disabled={disabled}
             className={inputClass}
@@ -76,7 +77,7 @@ export default function FormField({
       case 'sensitive':
         return (
           <SensitiveInput
-            value={value ?? ''}
+            value={stringValue}
             onChange={handleChange}
             placeholder={ui.placeholder}
             disabled={disabled}
@@ -87,7 +88,7 @@ export default function FormField({
         return (
           <input
             type="email"
-            value={value ?? ''}
+            value={stringValue}
             onChange={(e) => handleChange(e.target.value)}
             placeholder={ui.placeholder}
             disabled={disabled}
@@ -98,7 +99,7 @@ export default function FormField({
       case 'cidr':
         return (
           <CidrInput
-            value={value ?? ''}
+            value={stringValue}
             onChange={handleChange}
             error={error}
             placeholder={ui.placeholder}
@@ -120,7 +121,7 @@ export default function FormField({
         return (
           <input
             type="number"
-            value={value ?? ''}
+            value={stringValue}
             onChange={(e) =>
               handleChange(e.target.value === '' ? '' : Number(e.target.value))
             }
@@ -133,7 +134,7 @@ export default function FormField({
       case 'textarea':
         return (
           <textarea
-            value={value ?? ''}
+            value={stringValue}
             onChange={(e) => handleChange(e.target.value)}
             placeholder={ui.placeholder}
             disabled={disabled}
@@ -190,7 +191,7 @@ export default function FormField({
         }
         return (
           <ObjectInput
-            value={typeof value === 'object' && value !== null ? (value as Record<string, any>) : {}}
+            value={typeof value === 'object' && value !== null ? (value as Record<string, unknown>) : {}}
             onChange={handleChange}
             fields={fields}
             disabled={disabled}
@@ -213,7 +214,7 @@ export default function FormField({
         return (
           <input
             type="text"
-            value={value ?? ''}
+            value={stringValue}
             onChange={(e) => handleChange(e.target.value)}
             placeholder={ui.placeholder}
             disabled={disabled}

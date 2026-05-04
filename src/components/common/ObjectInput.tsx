@@ -1,6 +1,6 @@
 interface ObjectInputProps {
-  value: Record<string, any>;
-  onChange: (value: Record<string, any>) => void;
+  value: Record<string, unknown>;
+  onChange: (value: Record<string, unknown>) => void;
   fields: Record<string, { label: string; placeholder?: string; required?: boolean }>;
   disabled?: boolean;
 }
@@ -27,7 +27,7 @@ export default function ObjectInput({
           </label>
           <input
             type="text"
-            value={value[fieldName] ?? ''}
+            value={value[fieldName] === null || value[fieldName] === undefined ? '' : String(value[fieldName])}
             onChange={(e) => handleFieldChange(fieldName, e.target.value)}
             placeholder={fieldDef.placeholder}
             disabled={disabled}

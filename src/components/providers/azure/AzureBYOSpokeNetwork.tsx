@@ -23,14 +23,14 @@ export default function AzureBYOSpokeNetwork() {
   const dnsZoneIds =
     (existingWorkspaceVnet.dns_zone_ids as Record<string, string>) || {};
 
-  const handleNetworkConfigChange = (val: Record<string, string>) => {
+  const handleNetworkConfigChange = (val: Record<string, unknown>) => {
     setField('existing_workspace_vnet', {
       ...existingWorkspaceVnet,
       network_configuration: val,
     });
   };
 
-  const handleDnsZoneChange = (val: Record<string, string>) => {
+  const handleDnsZoneChange = (val: Record<string, unknown>) => {
     setField('existing_workspace_vnet', {
       ...existingWorkspaceVnet,
       dns_zone_ids: val,

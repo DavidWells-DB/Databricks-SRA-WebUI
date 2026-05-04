@@ -1,8 +1,8 @@
 import { useState } from 'react';
 
 interface ListEditorProps {
-  value: any[];
-  onChange: (value: any[]) => void;
+  value: unknown[];
+  onChange: (value: unknown[]) => void;
   placeholder?: string;
   disabled?: boolean;
 }

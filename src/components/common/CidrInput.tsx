@@ -45,7 +45,7 @@ export default function CidrInput({
           displayError
             ? 'border-[var(--color-error)] focus:border-[var(--color-error)] focus:ring-[var(--color-error)]'
             : isValid
-              ? 'field-valid focus:ring-[var(--color-success)]'
+              ? 'border-[var(--color-success)] focus:border-[var(--color-success)] focus:ring-[var(--color-success)]'
               : 'border-[var(--color-border)] focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]'
         }`}
       />
