@@ -18,6 +18,7 @@ export default function CollapsibleSection({ title, icon, defaultOpen = false, c
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center justify-between px-5 py-3 bg-[var(--color-surface-secondary)] hover:bg-[var(--color-surface-tertiary)] transition-colors text-left"
         aria-expanded={isOpen}
+        aria-label={`${isOpen ? 'Collapse' : 'Expand'} ${title} section`}
       >
         <div className="flex items-center gap-2">
           {icon}
